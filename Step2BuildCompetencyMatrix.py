@@ -324,60 +324,6 @@ def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
     logging.info("Competency matrix extraction completed.")
     return competency_df
 
-def OLD_extract_competency_matrix(df, cv_folder="downloaded_CVs"):
-    """
-    Creates a competency matrix by analyzing each consultant's CV and extracting competency details.
-    
-    Args:
-        df (DataFrame): DataFrame containing consultant data with 'Ressurs' (consultant name) column.
-        cv_folder (str): Directory where downloaded CVs are stored.
-    
-    Returns:
-        DataFrame: Competency matrix with one row per consultant.
-    """
-    competency_data = []
-    competency_assistant_id = "asst_ommyrTiCpM234i21Nqj25MkW"
-
-    # Iterate over each consultant in the DataFrame and ask assistant to create a row in competency matrix
-    for _, row in df.iterrows():
-        consultant_name = row['Ressurs']
-        cv_path = os.path.join(cv_folder, f"{consultant_name}_CV.docx")
-        
-        if os.path.exists(cv_path):
-            # Convert CV to text and anonymize(pseudonymize) it by removing consultant names
-            logging.info(f"Extracting text from {consultant_name}'s CV.")
-            cv_text = extract_text_from_docx(cv_path)
-            anonymized_cv = anonymizeName(cv_text, consultant_name, "Konsulenten")
-            
-            # Analyze text with OpenAI assistant
-            try:
-                logging.info(f"Analyzing competency for {consultant_name}.")
-                competency_info = Query_OpenAI_Assistant(competency_assistant_id, anonymized_cv)
-                logging.info(f"Competency extracted for {consultant_name}: {competency_info}")
-                
-                # Append results to the data list
-                competency_data.append({
-                    "Consultant": consultant_name,
-                    "Competency": competency_info
-                })
-            except Exception as e:
-                logging.error(f"Error analyzing competency for {consultant_name}: {e}")
-                competency_data.append({
-                    "Consultant": consultant_name,
-                    "Competency": "Error during extraction"
-                })
-        else:
-            logging.warning(f"CV file not found for {consultant_name}.")
-            competency_data.append({
-                "Consultant": consultant_name,
-                "Competency": "CV file not found"
-            })
-
-    # Convert the competency data to a DataFrame
-    competency_df = pd.DataFrame(competency_data)
-    logging.info("Competency matrix extraction completed.")
-    return competency_df
-
 def profil_kvalitetssikring():
     folder_path = "consultant_profiles"
     files = [f for f in os.listdir(folder_path) if f.endswith('.json')]
