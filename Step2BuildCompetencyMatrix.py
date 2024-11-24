@@ -36,21 +36,19 @@ Generelle regler:
 2. Returner alle felter, selv om verdien er ukjent. Hvis data mangler, bruk verdien null.
 3. Bruk kun tall uten enhet (f.eks. 5, ikke 5 måneder) for felt som krever et antall.
 4. Returner alle svar som en flat JSON-struktur uten underliggende objekter eller lister.
-5. Returner feltet “Sertifiseringer” som en kommaseparert streng, ikke som en JSON-liste.
-6. For felter som ender med .måneder skal tallet være antall måneder konsulenten har jobbet med dette eller 0 hvis aldri.
-7. For felter som ender med .sist skal tallet være antall måneder siden konsulenten sist jobbet med dette, MEN settes til null hvis .måneder feltet =0.
+5. For felter som ender med .mnd skal tallet være antall måneder konsulenten har jobbet med dette eller 0 hvis aldri.
+6. For felter som ender med .sist skal tallet være antall måneder siden konsulenten sist jobbet med dette, MEN settes til null hvis .mnd feltet =0.
 
 Feltstruktur: Besvar med følgende JSON-struktur:
 """
 
 CompetencyBotOutro = """
 Viktige merknader:
-- For hver område, bruk nøyaktig samme format for spesifiserte felter med .måneder, .sist, og .referanse som angitt.
-- Eksempel: Hvis konsulenten ikke har erfaring i bransjen Forsvar, sett "Forsvar.måneder": 0, "Forsvar.sist": null, og "Forsvar.referanse": "".
-- Hvis konsulenten mangler sertifiseringer, sett "Sertifiseringer": "".
+- For hver område, bruk nøyaktig samme format for spesifiserte felter med .mnd, .sist, og .ref som angitt.
+- Eksempel: Hvis konsulenten ikke har erfaring i bransjen Forsvar, sett "Forsvar.mnd": 0, "Forsvar.sist": null, og "Forsvar.ref": "".
 """
 
-CompetencyBotSchemas = ["Schema_bransjeerfaring.json"] #, "Schema_teknologi_kompetanse.json", "Schema_annen_kompetanse.json"]
+CompetencyBotSchemas = ["Schema_bransjeerfaring.json", "Schema_teknologi_kompetanse.json", "Schema_annen_kompetanse.json"]
 
 # Function to extract text from .docx files
 def extract_text_from_docx(docx_path):
@@ -221,7 +219,7 @@ def anonymizeName(file_body, consultant_name, consultant_alias):
 
     return content
 
-def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
+def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
     """
     Creates a competency matrix by analyzing each consultant's CV and extracting competency details.
     
@@ -238,8 +236,42 @@ def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
     # Ensure profiles folder exists
     os.makedirs(PROFILES_FOLDER, exist_ok=True)
 
+    # Make column explanation table
+    all_themes = {}
+    for schemafile in CompetencyBotSchemas:
+        # Read schema-file
+        if os.path.exists(schemafile):
+            with open(schemafile, "r", encoding="utf-8") as f:
+                schema_text = f.read()
+                #logging.info(f"Schema file loaded: ({schemafile}).")
+        else:
+            logging.error(f"No schemafile {CONSULTANT_JSON_FILE} found!  Did you forget to run GenererSchema.py first?")
+            exit(1)
+
+        try:
+            schema_json = json.loads(schema_text)
+            # Logging or print to confirm successful parsing
+            logging.info(f"Schema JSON successfully parsed: {schemafile}")
+        except json.JSONDecodeError as e:
+            logging.error(f"Error parsing JSON from schema file {schemafile}: {e}")
+            exit(1)
+
+        all_themes.update(schema_json)
+
+    # Make row that explains variables
+    comp_explanation = {}
+    for theme in all_themes.keys():
+        if theme.endswith(".ref"):
+            comp_explanation[theme] = all_themes[theme].replace("Kort referanse. ", "")
+        else:
+            comp_explanation[theme] = ""
+    competency_data.append({
+        "Consultant": "FORKLARING",
+        "Competency": comp_explanation
+    })
+
     # Iterate over each consultant in the DataFrame and ask assistant to create a row in competency matrix
-    for _, row in df.iterrows():
+    for _, row in df_consultants.iterrows():
         consultant_name = row['Ressurs']
         cv_path = os.path.join(cv_folder, f"{consultant_name}_CV.docx")
         profile_path = os.path.join(PROFILES_FOLDER, f"{consultant_name}_profile.json")
@@ -364,10 +396,13 @@ def format_norwegian_locale(x):
         return f"{x:.2f}".replace('.', ',')
     return x
 
-DEBUG = True
+DEBUG = False
 
 # Main execution
 if __name__ == "__main__":
+    if DEBUG:
+        logging.warning(" *** DEBUGGING MODE ***")
+
     logging.info("Loading local consultant data file:")
     # Load JSON data if file exists
     consultant_data = {}
@@ -390,8 +425,8 @@ if __name__ == "__main__":
     if DEBUG:
         pattern = "Eirik|Henning|Ingrid|Karl|Carol|Desir|Molan"
         pipeline_df = pipeline_df[pipeline_df['Ressurs'].str.contains(pattern, na=False, regex=True)]
-        print(" *** DEBUGGING ***")
-        print(pipeline_df)
+        logging.warning(" *** DEBUGGING MODE ***")
+        #print(pipeline_df)
 
     # Step 1: Extract competency matrix
     logging.info("EXTRACTING COMPETENCY MATRIX:")
@@ -402,22 +437,16 @@ if __name__ == "__main__":
 
     # Step 2: Expand JSON fields into individual columns
     competency_matrix_df = expand_competency_data(competency_matrix_df)
-    print("Column names after expansion:", competency_matrix_df.columns)
+    #print("Column names after expansion:", competency_matrix_df.columns)
 
     # Step 3: Ensure correct encoding and save to CSV
     output_file = "competency_matrix_cleaned.csv"
-
-    # Fix column names by decoding them correctly with fallback mechanisms
-    #competency_matrix_df.columns = [
-    #    col.encode('latin1', errors='replace').decode('utf-8', errors='replace') if isinstance(col, str) else col
-    #    for col in competency_matrix_df.columns
-    #]
 
     # Replace NaN values with empty strings
     competency_matrix_df = competency_matrix_df.fillna("")
 
     # Format the DataFrame for Norwegian locale settings using map
-    competency_matrix_df = competency_matrix_df.applymap(format_norwegian_locale)
+    competency_matrix_df = competency_matrix_df.map(format_norwegian_locale)
 
     # Save the DataFrame to a CSV file with a semicolon delimiter
     competency_matrix_df.to_csv(output_file, sep=';', index=False, encoding='utf-8-sig')

@@ -4,46 +4,30 @@ def generer_bransje_json(bransjer):
     json_data = {}
 
     for bransje in bransjer.keys():
-        json_data[f"{bransje}.referanse"] = "Kort referanse. " + bransjer[bransje]
-        json_data[f"{bransje}.måneder"] = 0
+        json_data[f"{bransje}.ref"] = "Kort referanse. " + bransjer[bransje]
+        json_data[f"{bransje}.mnd"] = 0
         json_data[f"{bransje}.sist"] = 0
     json_data["Andre bransjer"] = "Navn på andre viktige bransjer ikke nevnt over som konsulenten har erfaring fra."
     return json_data
 
 def generer_teknologi_json(teknologier):
     json_data = {}
-    for teknologi in teknologier:
-        json_data[f"{teknologi}.måneder"] = 0
+    for teknologi in teknologier.keys():
+        json_data[f"{teknologi}.ref"] = "Kort referanse. " + teknologier[teknologi]
+        json_data[f"{teknologi}.mnd"] = 0
         json_data[f"{teknologi}.sist"] = 0
-    json_data["Andre teknologier"] = "Beskrivelse av andre viktige teknologier konsulenten har erfaring fra."
+    json_data["Andre teknologier"] = "Beskrivelse av andre viktige teknologier ikke nevnt over som konsulenten også har erfaring med."
     return json_data
 
 def generer_annen_kompetanse_json(kompetanser):
     json_data = {}
-    for kompetanse in kompetanser:
-        json_data[f"{kompetanse}.måneder"] = 0
+    for kompetanse in kompetanser.keys():
+        json_data[f"{kompetanse}.ref"] = "Kort referanse. " + kompetanser[kompetanse]
+        json_data[f"{kompetanse}.mnd"] = 0
         json_data[f"{kompetanse}.sist"] = 0
     return json_data
 
 # Skap JSON for Bransjer
-""" bransjer = [
-    "Offentlig forvaltning",
-    "Kommunesektor",
-    "Helsesektor",
-    "Telekomsektor",
-    "Energisektor(ikke olje)",
-    "Olje og gass-sektor",
-    "Handel og industrisektor",
-    "Bank og finanssektor",
-    "Forsikring",
-    "Pensjonsforvaltning",
-    "Utdanningssektor",
-    "Bibliotekssektor",
-    "Transportsektor",
-    "Forsvarssektor",
-    "IKT-tjenester",
-    "HR og Personal"
-] """
 bransjer = {
     "Offentlig": "Inkluderer nasjonale myndigheter, direktorater og etater som utfører administrative og regulatoriske oppgaver, for eksempel Skatteetaten, Helsedirektoratet, eller NAV.",
     "Kommune": "Lokale myndigheter og tilknyttede tjenester som drives av kommuner og fylkeskommuner, for eksempel Oslo kommune, Bærum kommune eller fylkesadministrasjonen i Viken.",
@@ -73,59 +57,62 @@ with open("Schema_bransjeerfaring.json", "w", encoding="utf-8") as file:
 
 
 # Definerer variabelen med teknologiene
-teknologier = [
-    "Teknologi.Sky- og IT-infrastruktur.Snowflake",
-    "Teknologi.Sky- og IT-infrastruktur.MS Azure",
-    "Teknologi.Sky- og IT-infrastruktur.Lokalt datasenter etablering og drift",
-    "Teknologi.Sky- og IT-infrastruktur.Google Cloud Services",
-    "Teknologi.Sky- og IT-infrastruktur.Databricks",
-    "Teknologi.Sky- og IT-infrastruktur.Amazon Web Services (AWS)",
-    "Teknologi.Programmering.Python utvikling",
-    "Teknologi.Programmering.Mobilapp utvikling",
-    "Teknologi.Programmering.Java utvikling",
-    "Teknologi.Programmering.Fullstack utvikling",
-    "Teknologi.Programmering.Frontend utvikling",
-    "Teknologi.Programmering.C++ utvikling",
-    "Teknologi.Programmering.C#/.Net utvikling",
-    "Teknologi.Programmering.Backend utvikling",
-    "Teknologi.Maskinlæring og KI-verktøy.OpenAI ChatGPT",
-    "Teknologi.Maskinlæring og KI-verktøy.MS Machine Learning",
-    "Teknologi.Maskinlæring og KI-verktøy.MS CoPilot",
-    "Teknologi.Maskinlæring og KI-verktøy.Maskinlæring",
-    "Teknologi.Maskinlæring og KI-verktøy.Kunstig Intelligens (AI/KI)",
-    "Teknologi.Maskinlæring og KI-verktøy.Google AI",
-    "Teknologi.Maskinlæring og KI-verktøy.Generativ KI",
-    "Teknologi.Digitalisering og automasjon.User Interface design",
-    "Teknologi.Digitalisering og automasjon.Tjenestedesign/Design thinking",
-    "Teknologi.Digitalisering og automasjon.MS Power Automate",
-    "Teknologi.Digitalisering og automasjon.MS Power Applications",
-    "Teknologi.DevOps og CI/CD.JIRA og Confluence",
-    "Teknologi.DevOps og CI/CD.Continous Deployment (CICS, o.l.)",
-    "Teknologi.Dataanalyse og BI-verktøy.Tableau",
-    "Teknologi.Dataanalyse og BI-verktøy.Qlik",
-    "Teknologi.Dataanalyse og BI-verktøy.MS PowerBI",
-    "Teknologi.Dataanalyse og BI-verktøy.Dataanalyseverktøy",
-    "Teknologi.Dataanalyse og BI-verktøy.Business Intelligence (BI)",
-    "Teknologi.Datadrevet strategi og analyse.Datadrevet beslutningstakning",
-    "Teknologi.Datadrevet strategi og analyse.Data governance og compliance",
-    "Teknologi.Databaser og APIer.REST API",
-    "Teknologi.Databaser og APIer.Relasjonelle databaser og SQL",
-    "Teknologi.Databaser og APIer.GraphQL API",
-    "Teknologi.Databaser og APIer.Grafdatabaser",
-    "Arkitektur og modellering.Virksomhetsarkitektur",
-    "Arkitektur og modellering.UML",
-    "Arkitektur og modellering.TOGAF",
-    "Arkitektur og modellering.Tjenestearkitektur",
-    "Arkitektur og modellering.Løsnings- og teknisk arkitektur",
-    "Arkitektur og modellering.Kafka",
-    "Arkitektur og modellering.Informasjonsmodellering",
-    "Arkitektur og modellering.Informasjonsarkitektur",
-    "Arkitektur og modellering.Hendelsesorientert arkitektur",
-    "Arkitektur og modellering.Feiltolerante systemer",
-    "Arkitektur og modellering.Cyber-resiliente og sikre systemer",
-    "Arkitektur og modellering.Arkitekturmodellering",
-    "Arkitektur og modellering.Archimate"
-]
+teknologier = {
+    "Digitalisering.UX": "Erfaring fra design eller utvikling av brukervennlige brukergrensesnitt.",
+    "Digitalisering.Tjenestedesign": "Erfaring fra bruk av metoder for å utvikle tjenester basert på brukerbehov og iterativ testing, som f.eks. Design Thinking.",
+    "KI.Generelt": "Erfaring fra konkret bruk av Kunstig intelligens i prosjekter.",
+    "KI.OpenAI": "Erfaring fra konkret bruk av OpenAI verktøy som ChatGPT og OpenAI API i prosjekter.",
+    "KI.MS Machine Learning": "Erfaring fra konkret bruk av Microsofts verktøy for å bygge og deploye maskinlæringsmodeller.",
+    "KI.MS CoPilot": "Erfaring fra konkret bruk av Microsofts AI-assistent i prosjekter eller egen produktivitet.",
+    "KI.Maskinlæring": "Erfaring fra konkret bruk av algoritmer og modeller for å analysere data og forutsi utfall.",
+    "KI.Google": "Erfaring fra konkret bruk av Googles AI-verktøy og løsninger for maskinlæring og databehandling.",
+    "KI.GenKI": "Erfaring fra konkret bruk av AI i prosjekter som lager nytt innhold basert på eksisterende data.",
+    "Sky.MS Azure": "Erfaring fra bruk av Microsoft Azure skyplattform som tilbyr tjenester som lagring, maskinlæring, utvikling og applikasjonsdrift.",
+    "Sky.Lokalt datasenter": "Erfaring fra planlegging, anskaffelse, etablering, bygging og administrasjon av datasentre for organisasjoners IT-behov.",
+    "Sky.Google Cloud": "Erfaring med Google Cloud Services skyplattform som tilbyr tjenester og verktøy for lagring, maskinlæring, utvikling og applikasjonsdrift.",
+    "Sky.AWS": "Erfaring fra Amazon Web Services (AWS) sin tjenester for utvikling, datahåndtering, AI og applikasjonsdrift.",
+    "Utvikling.Python": "Erfaring fra utvikling med Python.",
+    "Utvikling.Mobilapp": "Erfaring fra utvikling av applikasjoner for mobile enheter, inkludert iOS og Android.",
+    "Utvikling.Java": "Erfaring fra utvikling med Java.",
+    "Utvikling.Fullstack": "Erfaring fra utvikling som dekker både frontend (brukergrensesnitt) og backend (serverlogikk).",
+    "Utvikling.Frontend": "Erfaring fra design og utvikling av brukergrensesnitt og visuelle komponenter, ofte med HTML, CSS og JavaScript.",
+    "Utvikling.C++": "Erfaring fra utvikling med C++.",
+    "Utvikling.Microsoft": "Erfaring fra utvikling på Windowsplattformen med rammeverk og språk som C# og .Net.",
+    "Utvikling.Backend": "Erfaring fra utvikling av serversiden som håndterer data og forretningslogikk for applikasjoner.",
+    "Utvikling.Lavkode": "Erfaring fra lavekode utvikling i prosjekter.",
+    "DevOps.JIRA og Confluence": "Erfaring fra bruk av verktøy fra Atlassian for prosjektstyring og dokumentasjon i utviklingsteam.",
+    "DevOps.CICD": "Erfaring fra automatisering av prosesser for å bygge, teste og deploye kode kontinuerlig.",
+    "Lavkode.MS Power Automate": "Erfaring fra bruk av Microsofts verktøy for å automatisere arbeidsflyter og prosesser.",
+    "Lavkode.MS Power Apps": "Erfaring fra bruk av Microsofts plattform for å lage tilpassede forretningsapplikasjoner.",
+    "Lavkode.Zoho": "Erfaring fra bruk av Zoho Creator for å lage tilpassede forretningsapplikasjoner.",
+    "Dataanalyse.Databricks": "Erfaring fra bruk av Databricks plattform og Apache Spark for datalagring, dataprosessering, analyse, maskinlæring eller datavarehus.",
+    "Dataanalyse.Snowflake": "Erfaring fra bruk av Snowflake for datalagring, dataprosessering, analyse, maskinlæring eller datavarehus.",
+    "Dataanalyse.Tableau": "Erfaring fra bruk av Tableau for business intelligence, data visualisering, dataanalyse og innsiktsdeling.",
+    "Dataanalyse.Qlik": "Erfaring fra bruk av Qlik for business intelligence, data visualisering, dataanalyse og innsiktsdeling.",
+    "Dataanalyse.MS PowerBI": "Erfaring fra bruk Microsofts PowerBI verktøy for business intelligence, data visualisering, dataanalyse og innsiktsdeling.",
+    "Dataanalyse.Dataanalyseverktøy": "Erfaring fra bruk av data analyseverktøy for å analysere og tolke store datasett.",
+    "Dataanalyse.BI": "Erfaring fra bruk av business intelligence verktøy som kombinerer dataanalyse, visualisering og rapportering.",
+    "Database.Relasjonell": "Erfaring fra bruk av Relasjonelle Databaser basert på tabellstrukturer og spørring med SQL.",
+    "Database.SQL": "Erfaring fra bruk av SQL verktøy til å spørre Relasjonelle Databaser.",
+    "Database.Grafdata": "Erfaring fra bruk av databaser som organiserer data i grafer for komplekse relasjoner, som Neo4j eller GraphDB",
+    "API.REST": "Erfaring fra bruk av REST-API standarden som lar systemer utveksle data via HTTP.",
+    "API.GraphQL": "Erfaring fra bruk av GraphQL for spørring av spesifikke data.",
+    "Arkitektur.Virksomhetsarkitektur": "Erfaring fra arbeid med virksomhetsarkitektur eller forretningsarkitektur for planlegging og styring av en organisasjons prosesser, teknologi og ressurser.",
+    "Arkitektur.Tjenestearkitektur": "Erfaring fra arbeid med tjenestearkitekturer og design og strukturering av tjenester for samhandling mellom systemer.",
+    "Arkitektur.Løsningsarkitektur": "Erfaring fra arbeid med løsningsarkitektur og teknisk arkitektur for å møte krav og behov.",
+    "Arkitektur.Informasjonsarkitektur": "Erfaring fra arbeid med informasjonsmodellering, strukturering og organisering av informasjon i prosjekter.",
+    "Arkitektur.Hendelsesorientert": "Erfaring fra arbeid med hendelsesorientert arkitektur.",
+    "Arkitektur.Datadrevet": "Erfaring fra arbeid med metoder og strategier for å ta beslutninger basert på analyser og data.",
+    "Arkitektur.Governance": "Erfaring fra arbeid med governance og styring av IT funksjoner som arkitektur, datahåndtering, mm. for å sikre samsvar med regelverk og beste praksis.",
+    "Arkitektur.UML": "Erfaring fra bruk av UML for å visualisere systemdesign og strukturer.",
+    "Arkitektur.TOGAF": "Erfaring fra arbeid med TOGAF rammeverket for utvikling av virksomhetsarkitektur.",
+    "Arkitektur.Kafka": "Erfaring fra bruk av Kafka for sanntids dataflyt og meldingskøer.",
+    "Arkitektur.Feiltoleranse": "Erfaring fra arbeid med feiltoleranse i systemer for å fortsette å fungere under feilforhold.",
+    "Arkitektur.Cybersikkerhet": "Erfaring fra arbeid med cybersikkerhet og systemer som beskytter mot og gjenoppretter etter cyberangrep.",
+    "Arkitektur.Archimate": "Erfaring fra bruk av Archimate for modellering av arkitektur i et prosjekt.",
+    "Teknologi.Radio": "Erfaring med digital radioteknologi som GSM, NFC eller Bluetooth."
+}
+
 # Generer JSON resultat
 json_resultat_teknologi = generer_teknologi_json(teknologier)
 
@@ -139,73 +126,67 @@ with open("Schema_teknologi_kompetanse.json", "w", encoding="utf-8") as file:
 
 
 # Definerer variabelen med annen kompetanse
-annen_kompetanse = [
-    "Rammeverk og smidige metodikker.Valuestream mapping",
-    "Rammeverk og smidige metodikker.Smidig metodikk (Scrum, Kanban, SAFE)",
-    "Rammeverk og smidige metodikker.LEAN metodikker",
-    "Rammeverk prosjekt- og programledelse.Prosjektledelse",
-    "Rammeverk prosjekt- og programledelse.PRINCE2 Agile",
-    "Rammeverk prosjekt- og programledelse.PRINCE2",
-    "Rammeverk prosjekt- og programledelse.MSP (Managing Successful Programmes)",
-    "Rammeverk prosjekt- og programledelse.MoP (Management of Portfolios)",
-    "Rammeverk prosjekt- og programledelse.Gartner metodikk",
-    "Rammeverk prosjekt- og programledelse.Accenture metodikk",
-    "Rammeverk prosjekt- og programledelse.A-2 metodikk",
-    "Rammeverk prosjekt- og programledelse.ITIL-rammeverket",
-    "Rammeverk kvalitetssikring.Kvalitetssikring og systemtesting",
-    "Rammeverk kvalitetssikring.Kvalitetssikring av styringsunderlag samt kostnadsoverslag (KS2)",
-    "Rammeverk kvalitetssikring.Kvalitetssikring av konseptvalg (KS1)",
-    "Rammeverk kvalitetssikring.Akseptansetesting",
-    "Offentlig sektor.Sak- og arkivsystemer.P360/Public 360",
-    "Offentlig sektor.Sak- og arkivsystemer.ePhorte",
-    "Offentlig sektor.Sak- og arkivsystemer.Elements",
-    "Offentlig sektor.Sak- og arkivsystemer.Documentum",
-    "Offentlig sektor.Sak- og arkivsystemer.ACOS WebSak",
-    "Offentlig sektor.Lovverk.SORA",
-    "Offentlig sektor.Lovverk.Offentlige anskaffelser",
-    "Offentlig sektor.Lovverk.NOARK",
-    "Offentlig sektor.Lovverk.Lov om offentlige anskaffelser",
-    "Offentlig sektor.Lovverk.GDPR",
-    "Offentlig sektor.Lovverk.EU AI Act",
-    "Offentlig sektor.Lovverk.Bokføringsloven",
-    "Offentlig sektor.Lovverk.Arbeidsmiljøloven",
-    "Ledelse og strategisk kompetanse.Virksomhetsstrategi",
-    "Ledelse og strategisk kompetanse.Situasjonskartlegging",
-    "Ledelse og strategisk kompetanse.Gevinstrealisering",
-    "Ledelse og strategisk kompetanse.Digitaliseringsstrategi",
-    "Ledelse og evaluering av risiko.Statens prosjektmodell/veiviser",
-    "Ledelse og evaluering av risiko.Risiko og sårbarhetsanalyse (ROS)",
-    "Ledelse og evaluering av risiko.Offentlige utredninger og utredningsinstruksen",
-    "Ledelse og teamstyring.Ledelse i smidig miljø",
-    "Ledelse og teamstyring.Ledelse i DevOps miljø",
-    "Ledelse og teamstyring.Ledelse av utviklingsteam",
-    "Ledelse og teamstyring.Ledelse av større programmer",
-    "Ledelse og teamstyring.Ledelse av hybride team",
-    "Ledelse og teamstyring.Ledelse av globale team med kulturell forståelse",
-    "Ledelse og teamstyring.Ledelse av funksjon for sikkerhet og beredskap",
-    "Ledelse og teamstyring.Innovasjonsledelse",
-    "Ledelse og teamstyring.Avdeling/Personalledelse",
-    "Endringsledelse.Kultur- og organisasjonsforståelse",
-    "Endringsledelse.Endringsledelse og adopsjon",
-    "Bransjeløsninger.SAP",
-    "Bransjeløsninger.Oracle",
-    "Bransjeløsninger.Regnskapssystemer",
-    "Bransjeløsninger.Personalsystemer",
-    "Bransjeløsninger.Logistikkløsninger",
-    "Bransjeløsninger.Industristyring",
-    "Bransjeløsninger.Fakturasystemer",
-    "Bransjeløsninger.ERP-systemer",
-    "Spesialteknologi.Digital radioteknologi (GSM, NFC, Bluetooth, o.l.)",
-    "Prosess- og tjenesteforbedring.workshops og møter",
-    "Prosess- og tjenesteforbedring.Prosessforbedringer",
-    "Prosess- og tjenesteforbedring.Kartlegging av prosesser og IT-løsninger",
-    "Prosess- og tjenesteforbedring.Fasilitering av prosesser",
-    "Kunde/brukerperspektiv.Customer Experience (CX) og Customer Journey Mapping",
-    "Kunde/brukerperspektiv.Adferdspsykologi",
-    "Kommunikasjon og forhandling.Konflikthåndtering",
-    "Kommunikasjon og forhandling.Kommunikasjonskompetanse",
-    "Kommunikasjon og forhandling.Forhandlingsteknikker"
-]
+annen_kompetanse = {
+    "Ledelse.Prosjekt": "Erfaring med prosjektledelse, inkludert planlegging, styring og gjennomføring av prosjekter.",
+    "Ledelse.DevOps": "Erfaring med ledelse i DevOps-miljøer med fokus på automatisering og samarbeid.",
+    "Ledelse.Endringsledelse": "Erfaring med ledelse og styring av endringsprosesser og brukeradopsjon.",
+    "Ledelse.utvikling": "Erfaring med ledelse av team eller prosjekter for programvareutvikling.",
+    "Ledelse.program": "Erfaring med styring og koordinering av større eller komplekse programmer.",
+    "Ledelse.hybrid": "Erfaring med ledelse av team som kombinerer fysiske og fjernarbeidende medlemmer.",
+    "Ledelse.global": "Erfaring med ledelse av internasjonale team med behov for å forstå kulturelle forskjeller.",
+    "Ledelse.sikkerhet": "Erfaring med ledelse av sikkerhets- og beredskapsfunksjoner, prosjekter eller miljøer.",
+    "Ledelse.innovasjon": "Erfaring med ledelse av innovasjonsprosesser og løsninger.",
+    "Ledelse.personell": "Erfaring med personalledelse og/eller ledelse av avdelinger.",
+    "Ledelse.konflikthåndtering": "Erfaring med håndtering av konflikter og problemløsning i team.",
+    "Ledelse.kommunikasjon": "Erfaring med metoder for effektiv kommunikasjon i komplekse prosjekter og team.",
+    "Ledelse.forhandling": "Erfaring med metoder for forhandlinger i forretnings- eller prosjektkontekster.",
+    "Ledelse.endring": "Erfaring med endringsledelse og endring av organisasjonskultur og tilpasning av organisasjonsstrukturer.",
+    "Strategi.Virksomhet": "Erfaring med utredning for, utvikling av og implementering av virksomhetsstrategier.",
+    "Strategi.Situasjonskartlegging": "Erfaring med situasjonskartlegging (AS-IS) for å identifisere muligheter og utfordringer.",
+    "Strategi.Gevinstrealisering": "Erfaring med å utrede, planlegge eller sikre gevinstrealisering fra prosjekter og programmer.",
+    "Strategi.Digitaliseringsstrategi": "Erfaring med utredning for, eller utvikling av strategier for digital transformasjon.",
+    "Rammeverk.Gartner": "Erfaring med Gartner-rammeverk for IT-strategi og organisasjonsutvikling.",
+    "Rammeverk.Accenture": "Erfaring med Accentures rammeverk og tilnærming til prosjektstyring og digital transformasjon.",
+    "Rammeverk.A-2": "Erfaring med A-2 sitt rammeverk for digitalisering og metodikk for systemutvikling og prosjektstyring.",
+    "Rammeverk.ITIL": "Erfaring med ITIL rammeverket for styring av IT-tjenester og prosesser.",
+    "Rammeverk.Statens prosjektmodell": "Erfaring med bruk av Statens prosjektmodell eller veiviser for offentlige prosjekter.",
+    "Rammeverk.OffUtredninger": "Erfaring med offentlige utredninger i henhold til utredningsinstruksen.",
+    "Rammeverk.OffAnskaffelse": "Erfaring med eller bruk av lov og praksis for offentlige anskaffelser.",
+    "Rammeverk.KS2": "Erfaring med KS2 for kvalitetssikring av styringsunderlag og kostnadsoverslag.",
+    "Rammeverk.KS1": "Erfaring med KS1 for kvalitetssikring av konseptvalg i offentlige prosjekter.",
+    "Regulering.SORA": "Erfaring med sikkerhetsrisikoanalyse i henhold til SORA-rammeverket.",
+    "Regulering.NOARK": "Erfaring med NOARK-standarden for elektronisk arkivering i offentlig sektor.",
+    "Regulering.GDPR": "Erfaring med prosjekter relatert til etterlevelse av GDPR for personvern og databeskyttelse.",
+    "Regulering.EU AI Act": "Erfaring med vurdering av samsvar med EU AI Act for kunstig intelligens.",
+    "Regulering.Bokføringsloven": "Erfaring med etterlevelse av Bokføringsloven for økonomiske systemer.",
+    "Regulering.Arbeidsmiljøloven": "Erfaring med implementering av tiltak for å etterleve Arbeidsmiljøloven.",
+    "Metode.PRINCE2 Agile": "Erfaring med PRINCE2 Agile for prosjektstyring som kombinerer smidige prinsipper med PRINCE2.",
+    "Metode.PRINCE2": "Erfaring med PRINCE2 for strukturert prosjektstyring.",
+    "Metode.MSP": "Erfaring med MSP  (Managing Successful Programmes)for styring av komplekse programmer med flere prosjekter.",
+    "Metode.MoP": "Erfaring med MoP (Management of Portfolios) for porteføljestyring og optimalisering av investeringer.",
+    "Metode.Valuestream mapping": "Erfaring med verdistrømskartlegging for å optimalisere prosesser og redusere flaskehalser.",
+    "Metode.Smidig": "Erfaring med bruk av smidige metoder som Scrum, Kanban eller SAFe for teamarbeid og prosjektstyring.",
+    "Metode.LEAN": "Erfaring med Lean-metodikker for å forbedre effektivitet og redusere sløsing i prosesser.",
+    "Metode.systemtesting": "Erfaring med kvalitetssikring og testing av IT-leveranse, systemer og applikasjoner.",
+    "Metode.Akseptansetesting": "Erfaring med akseptansetesting for å sikre at systemer møter krav og forventninger.",
+    "Metode.ROS": "Erfaring med Risiko- og sårbarhetsanalyser (ROS) for prosjekter og organisasjoner.",
+    "Metode.møter": "Erfaring med metoder for fasilitering av workshops og effektive møter.",
+    "Metode.Prosessforbedringer": "Erfaring med metoder for analyse av prosesser og fasilitering av prosessforbedringsprosjekter.",
+    "Metode.Kartlegging": "Erfaring med metoder for kartlegging av eksisterende prosesser og IT-systemer.",
+    "Metode.kundereise": "Erfaring med metoder for å kartlegge og jobbe med kundereiser (Customer Journey Mapping) og forbedre kundeopplevelser (Customer Experience - CX).",
+    "Metode.adferdspsykologi": "Erfaring med bruk av adferdspsykologi for å forstå og påvirke brukeratferd.",
+    "Løsning.SAP": "Erfaring med SAP-systemer for virksomhetsstyring.",
+    "Løsning.Oracle": "Erfaring med Oracles løsninger for databaser og ERP.",
+    "Løsning.Saksbehandling": "Erfaring med implementering og bruk av saksbehandlingssystemer, som P360, Elements, ServiceNow, mm.",
+    "Løsning.Arkiv": "Erfaring med implementering og bruk av arkivsystemer som P360, ePhorte, Sikri, ACOS.",
+    "Løsning.Regnskap": "Erfaring med implementering og bruk av regnskapssystemer.",
+    "Løsning.HR": "Erfaring med systemer for personaladministrasjon og HR.",
+    "Løsning.Logistikk": "Erfaring med løsninger for logistikkstyring.",
+    "Løsning.Industri": "Erfaring med systemer for produksjonsstyring og industrielle prosesser.",
+    "Løsning.Faktura": "Erfaring med systemer for fakturering og betalingshåndtering.",
+    "Løsning.ERP": "Erfaring med ERP-systemer for integrert virksomhetsstyring."
+}
+
 
 # Generer JSON resultat
 json_resultat_annen = generer_annen_kompetanse_json(annen_kompetanse)
