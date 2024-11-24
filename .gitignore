@@ -35,3 +35,4 @@ downloaded_CVs
 backup.py
 *.txt
 *.log
+*.xlsx

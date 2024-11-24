@@ -2,14 +2,12 @@ import json
 
 def generer_bransje_json(bransjer):
     json_data = {}
-    json_data["Antall år i A-2"] = 0
-    json_data["Sertifiseringer"] = "Sertifisering 1, Sertifisering 2, Sertifisering 3"
 
-    for bransje in bransjer:
+    for bransje in bransjer.keys():
+        json_data[f"{bransje}.referanse"] = "Kort referanse. " + bransjer[bransje]
         json_data[f"{bransje}.måneder"] = 0
         json_data[f"{bransje}.sist"] = 0
-        json_data[f"{bransje}.referanse"] = "Kort referanse til relevante prosjekter eller kunder."
-    json_data["Andre bransjer"] = "Beskrivelse av andre viktige bransjer konsulenten har erfaring fra."
+    json_data["Andre bransjer"] = "Navn på andre viktige bransjer ikke nevnt over som konsulenten har erfaring fra."
     return json_data
 
 def generer_teknologi_json(teknologier):
@@ -28,7 +26,7 @@ def generer_annen_kompetanse_json(kompetanser):
     return json_data
 
 # Skap JSON for Bransjer
-bransjer = [
+""" bransjer = [
     "Offentlig forvaltning",
     "Kommunesektor",
     "Helsesektor",
@@ -45,7 +43,25 @@ bransjer = [
     "Forsvarssektor",
     "IKT-tjenester",
     "HR og Personal"
-]
+] """
+bransjer = {
+    "Offentlig": "Inkluderer nasjonale myndigheter, direktorater og etater som utfører administrative og regulatoriske oppgaver, for eksempel Skatteetaten, Helsedirektoratet, eller NAV.",
+    "Kommune": "Lokale myndigheter og tilknyttede tjenester som drives av kommuner og fylkeskommuner, for eksempel Oslo kommune, Bærum kommune eller fylkesadministrasjonen i Viken.",
+    "Helse": "Helseinstitusjoner og leverandører av helsetjenester, inkludert sykehus, legekontorer, private klinikker, og helseforetak som Helse Sør-Øst eller Volvat Medisinske Senter.",
+    "Telekom": "Selskaper som tilbyr telekommunikasjonstjenester som mobilnett, bredbånd og TV, for eksempel Telenor, Telia eller Ice.",
+    "Energi": "Virksomheter som produserer og distribuerer fornybar energi som vannkraft, vindkraft og solenergi, for eksempel Statkraft, Hafslund eller Agder Energi.",
+    "Olje og gass": "Bedrifter innen leting, utvinning, foredling og distribusjon av olje og gass, som Equinor, Aker BP eller Shell.",
+    "Handel og industri": "Produksjonsbedrifter, grossister, og detaljhandel som produserer eller distribuerer varer og tjenester, for eksempel Orkla, Elkjøp eller Jotun.",
+    "Finans": "Finansinstitusjoner som banker, investeringsselskaper og låneinstitusjoner, for eksempel DNB, Nordea eller Danske Bank.",
+    "Forsikring": "Selskaper som tilbyr forsikringsløsninger innen helse, liv, skade og eiendom, for eksempel Storebrand, Fremtind, Gjensidige, If eller Tryg Forsikring.",
+    "Pensjon": "Organisasjoner som håndterer pensjonsordninger for individer eller bedrifter, for eksempel KLP, Storebrand eller Statens pensjonskasse.",
+    "Utdanning": "Institusjoner som tilbyr utdanning og opplæring eller som leverer løsninger til utdanningssektoren, inkludert skoler, universiteter og høyskoler, for eksempel NTNU, Skoledata, Universitetet i Oslo eller BI.",
+    "Bibliotek": "Offentlige og private biblioteker som støtter lesing, forskning og informasjonsformidling, for eksempel Deichman bibliotek eller Universitetsbiblioteket ved UiO.",
+    "Transport": "Selskaper og enheter som leverer person- eller godstransport, inkludert reiselivsnæringen, for eksempel Vy, Posten, SAS, Berg Hansen, DHL, eller Widerøe.",
+    "Forsvar": "Militære avdelinger, forsvarsleverandører og sikkerhetsorganisasjoner som Forsvaret, Kongsberg Gruppen eller NATO-relaterte enheter.",
+    "IKT": "Bedrifter som er spesialiserte på programvareutvikling, IT drift, IT-infrastruktur og teknisk support, som Sopra Steria, Intility, Accenture eller Microsoft Norge.",
+    "HR og Personal": "Organisasjoner og avdelinger som jobber med rekruttering, opplæring og personaladministrasjon, som Manpower, Adecco eller interne HR-avdelinger i større selskaper."
+}
 json_bransjer = generer_bransje_json(bransjer)
 # For å skrive JSON-dataene til fil eller skrive ut
 #json_str_bransjer = json.dumps(json_bransjer, ensure_ascii=False, indent=4)

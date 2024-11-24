@@ -50,7 +50,7 @@ Viktige merknader:
 - Hvis konsulenten mangler sertifiseringer, sett "Sertifiseringer": "".
 """
 
-CompetencyBotSchemas = ["Schema_bransjeerfaring.json", "Schema_teknologi_kompetanse.json", "Schema_annen_kompetanse.json"]
+CompetencyBotSchemas = ["Schema_bransjeerfaring.json"] #, "Schema_teknologi_kompetanse.json", "Schema_annen_kompetanse.json"]
 
 # Function to extract text from .docx files
 def extract_text_from_docx(docx_path):
@@ -212,12 +212,12 @@ def anonymizeName(file_body, consultant_name, consultant_alias):
 
     # Anonymize every row; Replace first name by "Konsulenten(s)"
     content = file_body
-    content = re.sub(r"\b%s\b" %  consultant_name,  "["+consultant_alias+"]", content)
-    content = re.sub(r"\b%s\b" %  full_name,  "["+consultant_alias+"]", content)
-    content = re.sub(r"\b%s\b" %  genetiv,    "Konsulentens", content)
-    content = re.sub(r"\b%s\b" %  first_name, "Konsulenten", content)
-    content = re.sub(r"\b%s\b" %  last_name,  "Konsulenten", content)
-    content = re.sub(r"\b%s\b" %  short_name, "Konsulenten", content)
+    content = re.sub(r"\b%s\b" %  consultant_name,  consultant_alias, content)
+    content = re.sub(r"\b%s\b" %  full_name,  consultant_alias, content)
+    content = re.sub(r"\b%s\b" %  genetiv,    consultant_alias+"s", content)
+    content = re.sub(r"\b%s\b" %  first_name, consultant_alias, content)
+    content = re.sub(r"\b%s\b" %  last_name,  consultant_alias, content)
+    content = re.sub(r"\b%s\b" %  short_name, consultant_alias, content)
 
     return content
 
@@ -250,7 +250,7 @@ def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
             
             # Check if a valid profile already exists
             if os.path.exists(profile_path):
-                with open(profile_path, 'r') as profile_file:
+                with open(profile_path, 'r', encoding="utf-8") as profile_file:
                     profile_data = json.load(profile_file)
                     last_filename = profile_data.get("CV filnavn")
                     last_timestamp = profile_data.get("CV timestamp")
@@ -273,7 +273,7 @@ def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
             for schemafile in CompetencyBotSchemas:
                 # Read schema-file
                 if os.path.exists(schemafile):
-                    with open(schemafile, "r") as f:
+                    with open(schemafile, "r", encoding="utf-8") as f:
                         schema_text = f.read()
                         #logging.info(f"Schema file loaded: ({schemafile}).")
                 else:
@@ -308,7 +308,7 @@ def extract_competency_matrix(df, cv_folder="downloaded_CVs"):
                 "CV timestamp": current_timestamp,
                 "Competency": Full_competency_info
             }
-            with open(profile_path, 'w') as profile_file:
+            with open(profile_path, 'w', encoding="utf-8") as profile_file:
                 json.dump(profile_data, profile_file, indent=4)
             logging.info(f"Profile saved for {consultant_name}.")
                 
@@ -352,13 +352,27 @@ def profil_kvalitetssikring():
             if extra_keys:
                 print(f"Warning! File {file} has additional fields: {', '.join(extra_keys)}.")
 
+def expand_competency_data(df):
+    # Assuming the JSON data is in a column called 'Competency'
+    df['Competency'] = df['Competency'].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
+    competency_expanded_df = pd.json_normalize(df['Competency'])
+    df = df.drop(columns=['Competency']).join(competency_expanded_df)
+    return df
+
+def format_norwegian_locale(x):
+    if isinstance(x, float):
+        return f"{x:.2f}".replace('.', ',')
+    return x
+
+DEBUG = True
+
 # Main execution
 if __name__ == "__main__":
     logging.info("Loading local consultant data file:")
     # Load JSON data if file exists
     consultant_data = {}
     if os.path.exists(CONSULTANT_JSON_FILE):
-        with open(CONSULTANT_JSON_FILE, "r") as f:
+        with open(CONSULTANT_JSON_FILE, "r", encoding="utf-8") as f:
             consultant_data = json.load(f)
         logging.info(f"Consultant CV data loaded from existing JSON file ({CONSULTANT_JSON_FILE}).")
     else:
@@ -373,15 +387,38 @@ if __name__ == "__main__":
         logging.error(f"No A2 Pipeline Data file found (a2pipeline.csv). Did you forget to run Step1 to completion?")
         exit(1)
 
-    # Extract competency matrix
+    if DEBUG:
+        pattern = "Eirik|Henning|Ingrid|Karl|Carol|Desir|Molan"
+        pipeline_df = pipeline_df[pipeline_df['Ressurs'].str.contains(pattern, na=False, regex=True)]
+        print(" *** DEBUGGING ***")
+        print(pipeline_df)
+
+    # Step 1: Extract competency matrix
     logging.info("EXTRACTING COMPETENCY MATRIX:")
     competency_matrix_df = extract_competency_matrix(pipeline_df)
 
     # Run QA on all profiles
     profil_kvalitetssikring()
 
-    # Print or save the competency matrix
-    print("\nCOMPETENCY MATRIX:")
-    print(competency_matrix_df)
-    competency_matrix_df.to_csv("competency_matrix.csv", index=False)
-    logging.info("Competency matrix saved to competency_matrix.csv.")
+    # Step 2: Expand JSON fields into individual columns
+    competency_matrix_df = expand_competency_data(competency_matrix_df)
+    print("Column names after expansion:", competency_matrix_df.columns)
+
+    # Step 3: Ensure correct encoding and save to CSV
+    output_file = "competency_matrix_cleaned.csv"
+
+    # Fix column names by decoding them correctly with fallback mechanisms
+    #competency_matrix_df.columns = [
+    #    col.encode('latin1', errors='replace').decode('utf-8', errors='replace') if isinstance(col, str) else col
+    #    for col in competency_matrix_df.columns
+    #]
+
+    # Replace NaN values with empty strings
+    competency_matrix_df = competency_matrix_df.fillna("")
+
+    # Format the DataFrame for Norwegian locale settings using map
+    competency_matrix_df = competency_matrix_df.applymap(format_norwegian_locale)
+
+    # Save the DataFrame to a CSV file with a semicolon delimiter
+    competency_matrix_df.to_csv(output_file, sep=';', index=False, encoding='utf-8-sig')
+    logging.info(f"Competency matrix saved to {output_file} with UTF-8 encoding.")
