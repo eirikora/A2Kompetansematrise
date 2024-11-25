@@ -265,6 +265,31 @@ def anonymizeName(file_body, consultant_name, consultant_alias):
 
     return content
 
+def addCrosses(current_competency):
+    allkeys = current_competency.keys()
+    corekeys = []
+    for key in allkeys:
+        if key.endswith(".ref"):
+            corekey = key.replace(".ref", "")
+            corekeys.append(corekey)
+
+    expanded_competency = {}
+    for key in corekeys:
+        reference = current_competency[key+".ref"]
+        if reference == None:
+            reference = ""
+        reference = reference.replace("Ikke spesifisert.", "")
+        reference = reference.replace("Ingen spesifikk erfaring nevnt.", "")
+        cross = ""
+        if len(reference) > 1:
+            cross = "X"
+        expanded_competency[key] = cross
+        expanded_competency[key+".ref"] = reference
+        expanded_competency[key+".mnd"] = current_competency[key+".mnd"]
+        expanded_competency[key+".sist"] = current_competency[key+".sist"]
+
+    return expanded_competency
+
 def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
     """
     Creates a competency matrix by analyzing each consultant's CV and extracting competency details.
@@ -285,13 +310,13 @@ def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
     # Make column explanation table
     all_themes = {}
     for schemafile in CompetencyBotSchemas:
-        # Read schema-file
+        # Read Consultant CV overview file (with timestamps)
         if os.path.exists(schemafile):
             with open(schemafile, "r", encoding="utf-8") as f:
                 schema_text = f.read()
                 #logging.info(f"Schema file loaded: ({schemafile}).")
         else:
-            logging.error(f"No schemafile {CONSULTANT_JSON_FILE} found!  Did you forget to run GenererSchema.py first?")
+            logging.error(f"No file {CONSULTANT_JSON_FILE} found!  Did you forget to run Step 1 first?")
             exit(1)
 
         try:
@@ -304,13 +329,18 @@ def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
 
         all_themes.update(schema_json)
 
-    # Make row that explains variables
-    comp_explanation = {}
+    core_themes = []
     for theme in all_themes.keys():
         if theme.endswith(".ref"):
-            comp_explanation[theme] = all_themes[theme].replace("Kort referanse. ", "")
-        else:
-            comp_explanation[theme] = ""
+            core_themes.append(theme.replace(".ref",""))
+
+    # Make row that explains variables
+    comp_explanation = {}
+    for theme in core_themes:
+        comp_explanation[theme] = theme.split('.')[-1]
+        comp_explanation[theme+".ref"] = all_themes[theme+".ref"]
+        comp_explanation[theme+".mnd"] = ""
+        comp_explanation[theme+".sist"] = ""
     competency_data.append({
         "Consultant": "FORKLARING",
         "Competency": comp_explanation
@@ -336,9 +366,11 @@ def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
                     # Skip profiling if the current CV matches the last analyzed CV
                     if last_filename == f"{consultant_name}_CV.docx" and last_timestamp == current_timestamp:
                         logging.info(f"Profile for {consultant_name} is up-to-date. Skipping re-profiling.")
+                        current_competency = profile_data["Competency"]
+                        expanded_competency = addCrosses(current_competency)
                         competency_data.append({
                             "Consultant": consultant_name,
-                            "Competency": profile_data["Competency"]
+                            "Competency": expanded_competency
                         })
                         continue
 
@@ -374,9 +406,11 @@ def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
                     })
 
             # Append results to the data list
+            current_competency = Full_competency_info
+            expanded_competency = addCrosses(current_competency)
             competency_data.append({
                 "Consultant": consultant_name,
-                "Competency": Full_competency_info
+                "Competency": expanded_competency
             })
 
             # Save individual profile to JSON
