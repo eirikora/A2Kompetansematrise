@@ -54,8 +54,8 @@ def GetPipelineData():
         excel_file = A2_PIPELINE 
         logging.info("Loading pipeline data from Excel file.")
 
-        # Read the Excel sheet "Ressursdisponering" with headers from row 2
-        df = pd.read_excel(excel_file, sheet_name="Ressursdisponering", header=1)
+        # Read the Excel sheet "Ressursdisponering" with headers from row 3
+        df = pd.read_excel(excel_file, sheet_name="Ressursdisponering", header=2)
 
         # Filter out rows where the 'e-post' column is empty
         df = df[df['e-post'].notna() & (df['e-post'] != "")]

@@ -30,16 +30,16 @@ PROFILES_FOLDER = "consultant_profiles"
 os.makedirs(PROFILES_FOLDER, exist_ok=True)  # Ensure profiles folder exists
 
 CompetencyBotIntro = """
-Du er en tjeneste som mottar teksten fra en CV og skal returnere informasjon i en presis, flat JSON-struktur. Følg instruksjonene nøye og gi konsistente svar.
+Du er en tjeneste som mottar teksten fra en CV og skal returnere kompetanse- og erfaringsinformasjon i en presis, flat JSON-struktur uten underliggende objekter eller lister. Følg instruksjonene nøye og gi konsistente svar.
 Generelle regler:
 1. Bruk eksakt samme nøkkelnavn som angitt her. Ingen variasjoner i store og små bokstaver, ingen ekstra mellomrom eller spesialtegn.
 2. Returner alle felter, selv om verdien er ukjent. Hvis data mangler, bruk verdien null.
 3. Bruk kun tall uten enhet (f.eks. 5, ikke 5 måneder) for felt som krever et antall.
-4. Returner alle svar som en flat JSON-struktur uten underliggende objekter eller lister.
-5. For felter som ender med .mnd skal tallet være antall måneder konsulenten har jobbet med dette eller 0 hvis aldri.
-6. For felter som ender med .sist skal tallet være antall måneder siden konsulenten sist jobbet med dette, MEN settes til null hvis .mnd feltet =0.
+4. For felter som ender med .mnd skal tallet være antall måneder konsulenten har jobbet med dette eller 0 hvis aldri.
+5. For felter som ender med .sist skal tallet være antall måneder siden konsulenten sist jobbet med dette, MEN settes til null hvis .mnd feltet =0.
+6. For felter som ender med .ref skal du oppsummere kunder eller prosjekter som er relevante iht. tekst i schema. Ingen tekst skal returneres dersom antall måneder er 0.
 
-Feltstruktur: Besvar med følgende JSON-struktur:
+Feltstruktur/schema: Besvar med følgende JSON-struktur men ta først vekk den forklarende teksten:
 """
 
 CompetencyBotOutro = """
@@ -338,9 +338,9 @@ def extract_competency_matrix(df_consultants, cv_folder="downloaded_CVs"):
     comp_explanation = {}
     for theme in core_themes:
         comp_explanation[theme] = theme.split('.')[-1]
-        comp_explanation[theme+".ref"] = all_themes[theme+".ref"]
-        comp_explanation[theme+".mnd"] = ""
-        comp_explanation[theme+".sist"] = ""
+        comp_explanation[theme+".ref"] = all_themes[theme+".ref"].replace("Kort referanse. ","")
+        comp_explanation[theme+".mnd"] = "Måneder"
+        comp_explanation[theme+".sist"] = "Sist"
     competency_data.append({
         "Consultant": "FORKLARING",
         "Competency": comp_explanation
